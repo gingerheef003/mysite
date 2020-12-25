@@ -13,9 +13,13 @@ class IndexView(generic.ListView):
     context_object_name = 'latest_question_list'
 
     def get_queryset(self):
+        """
+        Excludes any questions that aren't published yet and without choices
+        """
         return Question.objects.filter(
-            pub_date__lte=timezone.now()        #lte refers to less than or equal to
-        ).order_by('-pub_date')[:5]
+            pub_date__lte=timezone.now(),        #lte refers to less than or equal to
+            choice__isnull=False
+        ).distinct().order_by('-pub_date')[:5]
 
 class DetailView(generic.DetailView):
     model = Question
@@ -23,9 +27,12 @@ class DetailView(generic.DetailView):
 
     def get_queryset(self):
         """
-        Excludes any questions that aren't published yet
+        Excludes any questions that aren't published yet and without choices
         """
-        return Question.objects.filter(pub_date__lte=timezone.now())
+        return Question.objects.filter(
+            pub_date__lte=timezone.now(),
+            choice__isnull=False
+        ).distinct()
 
 class ResultsView(generic.DetailView):
     model = Question
@@ -33,9 +40,12 @@ class ResultsView(generic.DetailView):
 
     def get_queryset(self):
         """
-        Excludes any questions that aren't published yet
+        Excludes any questions that aren't published yet and without choices
         """
-        return Question.objects.filter(pub_date__lte=timezone.now())
+        return Question.objects.filter(
+            pub_date__lte=timezone.now(),
+            choice__isnull=False
+        ).distinct()
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
